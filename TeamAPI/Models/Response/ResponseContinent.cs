@@ -13,6 +13,5 @@ namespace TeamAPI.Models.Response
         public string Name { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-        public ResponseContinent Continent { get; set; }
     }
 }
