@@ -12,7 +12,7 @@ using System.Web.Mvc;
 
 namespace TeamAPI.Helpers
 {
-    public class AsdFilter : AuthorizationFilterAttribute
+    public class BearerAuthentication : AuthorizationFilterAttribute
     {
         public override void OnAuthorization(HttpActionContext actionContext)
         {

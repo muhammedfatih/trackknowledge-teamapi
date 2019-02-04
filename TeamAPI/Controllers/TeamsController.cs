@@ -13,7 +13,7 @@ using TeamAPI.Helpers;
 
 namespace TeamAPI.Controllers
 {
-    [AsdFilter]
+    [BearerAuthentication]
     public class TeamsController : ApiController
     {
         public HttpResponseMessage Get()
