@@ -10,6 +10,10 @@ using System.Net.Http;
 using FluentValidation.Results;
 using AutoMapper;
 using TeamAPI.Helpers;
+using TeamAPI.Models.Response;
+using System.Configuration;
+using RestSharp;
+using Newtonsoft.Json;
 
 namespace TeamAPI.Controllers
 {
@@ -20,7 +24,21 @@ namespace TeamAPI.Controllers
         {
             using (TeamDBContext db = new TeamDBContext())
             {
-                return Request.CreateResponse(HttpStatusCode.OK, db.Teams.ToList());
+                List<ResponseTeam> returnList = new List<ResponseTeam>();
+                foreach (var item in db.Teams.ToList())
+                {
+                    ResponseTeam itemToAdd = new ResponseTeam();
+                    var Client = new RestClient(ConfigurationManager.AppSettings["SERVICE_ADDRESS_CONTENT"]);
+                    var uri = string.Format("/leagues/{0}", item.LeagueId);
+                    var request = new RestRequest(uri, Method.GET);
+                    request.AddParameter("Authorization", string.Format("Bearer " + ConfigurationManager.AppSettings["SERVICE_AUTHKEY"]), ParameterType.HttpHeader);
+                    IRestResponse response = Client.Execute(request);
+                    var responseLeague = JsonConvert.DeserializeObject<ResponseLeague>(response.Content);
+                    itemToAdd = Mapper.Map<ResponseTeam>(item);
+                    itemToAdd.League = responseLeague;
+                    returnList.Add(itemToAdd);
+                }
+                return Request.CreateResponse(HttpStatusCode.OK, returnList);
             }
         }
 
@@ -28,7 +46,24 @@ namespace TeamAPI.Controllers
         {
             using (TeamDBContext db = new TeamDBContext())
             {
-                return db.Teams.Find(id) == null ? Request.CreateResponse(HttpStatusCode.OK, new Team()) : Request.CreateResponse(HttpStatusCode.Created, db.Teams.Find(id));
+                ResponseTeam returnItem=new ResponseTeam();
+                Team item = db.Teams.Find(id);
+                if (item == null)
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, returnItem);
+                }
+                else
+                {
+                    var Client = new RestClient(ConfigurationManager.AppSettings["SERVICE_ADDRESS_CONTENT"]);
+                    var uri = string.Format("/leagues/{0}", item.LeagueId);
+                    var request = new RestRequest(uri, Method.GET);
+                    request.AddParameter("Authorization", string.Format("Bearer " + ConfigurationManager.AppSettings["SERVICE_AUTHKEY"]), ParameterType.HttpHeader);
+                    IRestResponse response = Client.Execute(request);
+                    var responseLeague = JsonConvert.DeserializeObject<ResponseLeague>(response.Content);
+                    returnItem = Mapper.Map<ResponseTeam>(item);
+                    returnItem.League = responseLeague;
+                    return Request.CreateResponse(HttpStatusCode.OK, returnItem);
+                }
             }
         }
 

@@ -231,6 +231,10 @@
       <DependentUpon>201902032204204_create_teams_table.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\Response\ResponseContinent.cs" />
+    <Compile Include="Models\Response\ResponseCountry.cs" />
+    <Compile Include="Models\Response\ResponseLeague.cs" />
+    <Compile Include="Models\Response\ResponseTeam.cs" />
     <Compile Include="Models\Team.cs" />
     <Compile Include="Models\Validations\ValidationTeam.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
