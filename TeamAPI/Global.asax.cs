@@ -1,4 +1,9 @@
 ﻿using AutoMapper;
+using Castle.MicroKernel.Registration;
+using Castle.MicroKernel.Resolvers.SpecializedResolvers;
+using Castle.Windsor;
+using Castle.Windsor.Installer;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +20,8 @@ namespace TeamAPI
 {
     public class WebApiApplication : System.Web.HttpApplication
     {
-        protected void Application_Start()
+		private static IWindsorContainer _container;
+		protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();
             GlobalConfiguration.Configure(WebApiConfig.Register);
@@ -33,6 +39,16 @@ namespace TeamAPI
                     .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
                     .ForAllOtherMembers(o => o.Ignore());
             });
-        }
-    }
+
+			ConfigureWindsor(GlobalConfiguration.Configuration);
+		}
+		public static void ConfigureWindsor(HttpConfiguration configuration)
+		{
+			_container = new WindsorContainer();
+			_container.Install(FromAssembly.This());
+			_container.Kernel.Resolver.AddSubResolver(new CollectionResolver(_container.Kernel, true));
+			var dependencyResolver = new WindsorDependencyResolver(_container);
+			configuration.DependencyResolver = dependencyResolver;
+		}
+	}
 }
