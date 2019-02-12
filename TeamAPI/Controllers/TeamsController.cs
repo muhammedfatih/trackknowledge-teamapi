@@ -23,36 +23,36 @@ namespace TeamAPI.Controllers
 	[BearerAuthentication]
 	public class TeamsController : ApiController
 	{
-		private readonly IService<Team> Service;
-		public TeamsController(IService<Team> service)
+		private readonly IService<TeamModel> Service;
+		public TeamsController(IService<TeamModel> service)
 		{
 			Service = service;
 		}
-		public HttpResponseMessage Get()
+		public List<TeamModel> Get()
 		{
 			return Service.Get();
 		}
 
-		public HttpResponseMessage Get(int id)
+		public TeamModel Get(int id)
 		{
 			return Service.Get(id);
 		}
 
 		[HttpPost]
-		public HttpResponseMessage Post([FromBody]Team request)
+		public TeamModel Post([FromBody]TeamModel request)
 		{
 			return Service.Insert(request);
 		}
 
 		[HttpPut]
-		public HttpResponseMessage Put(int id, [FromBody]Team request)
+		public bool Put(int id, [FromBody]TeamModel request)
 		{
 			request.Id = id;
 			return Service.Update(request);
 		}
 
 		[HttpDelete]
-		public HttpResponseMessage Delete(int id)
+		public bool Delete(int id)
 		{
 			return Service.Delete(id);
 		}

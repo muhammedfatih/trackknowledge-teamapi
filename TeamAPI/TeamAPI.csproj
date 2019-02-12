@@ -256,7 +256,7 @@
     <Compile Include="Models\Response\ResponseContinent.cs" />
     <Compile Include="Models\Response\ResponseCountry.cs" />
     <Compile Include="Models\Response\ResponseLeague.cs" />
-    <Compile Include="Models\Response\ResponseTeam.cs" />
+    <Compile Include="Models\Response\TeamModel.cs" />
     <Compile Include="Models\Team.cs" />
     <Compile Include="Models\Validations\ValidationTeam.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

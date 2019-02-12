@@ -15,85 +15,84 @@ using TeamAPI.Repositories;
 
 namespace TeamAPI.Services
 {
-	public class TeamService : IService<Team>
+	public class TeamService : IService<TeamModel>
 	{
 		private readonly IRestClient RestClient;
 		private readonly IRepository<Team> Repository;
-		private HttpRequestMessage Request;
 		public TeamService(IRestClient restClient, IRepository<Team> repository)
 		{
 			RestClient = restClient;
 			Repository = repository;
-			Request = new HttpRequestMessage();
 		}
-		public HttpResponseMessage Delete(int id)
+		public bool Delete(int id)
 		{
 			var record = Repository.Get(id);
 			if (record == null) {
-				Request.CreateResponse(HttpStatusCode.NotFound, record);
+				return false;
 			}
 			else {
 				Repository.Delete(record);
 			}
-			return Request.CreateResponse(HttpStatusCode.OK, record);
+			return true;
 		}
 
-		public HttpResponseMessage Get()
+		public List<TeamModel> Get()
 		{
-			List<ResponseTeam> returnList = new List<ResponseTeam>();
+			List<TeamModel> returnList = new List<TeamModel>();
 			foreach (var item in Repository.List()) {
-				ResponseTeam itemToAdd = new ResponseTeam();
-				var Client = new RestClient(ConfigurationManager.AppSettings["SERVICE_ADDRESS_CONTENT"]);
+				TeamModel itemToAdd = new TeamModel();
+				RestClient.BaseUrl = new Uri(ConfigurationManager.AppSettings["SERVICE_ADDRESS_CONTENT"]);
 				var uri = string.Format("/leagues/{0}", item.LeagueId);
 				var request = new RestRequest(uri, Method.GET);
 				request.AddParameter("Authorization", string.Format("Bearer " + ConfigurationManager.AppSettings["SERVICE_AUTHKEY"]), ParameterType.HttpHeader);
-				IRestResponse response = Client.Execute(request);
+				IRestResponse response = RestClient.Execute(request);
 				var responseLeague = JsonConvert.DeserializeObject<ResponseLeague>(response.Content);
-				itemToAdd = Mapper.Map<ResponseTeam>(item);
+				itemToAdd = Mapper.Map<TeamModel>(item);
 				itemToAdd.League = responseLeague;
 				returnList.Add(itemToAdd);
 			}
-			return Request.CreateResponse(HttpStatusCode.OK, returnList);
+			return returnList;
 		}
 
-		public HttpResponseMessage Get(int id)
+		public TeamModel Get(int id)
 		{
-			ResponseTeam returnItem = new ResponseTeam();
+			TeamModel returnItem = new TeamModel();
 			Team item = Repository.Get(id);
 			if (item == null) {
-				return Request.CreateResponse(HttpStatusCode.NotFound, returnItem);
+				return returnItem;
 			}
 			else {
-				var Client = new RestClient(ConfigurationManager.AppSettings["SERVICE_ADDRESS_CONTENT"]);
+				RestClient.BaseUrl = new Uri(ConfigurationManager.AppSettings["SERVICE_ADDRESS_CONTENT"]);
 				var uri = string.Format("/leagues/{0}", item.LeagueId);
 				var request = new RestRequest(uri, Method.GET);
 				request.AddParameter("Authorization", string.Format("Bearer " + ConfigurationManager.AppSettings["SERVICE_AUTHKEY"]), ParameterType.HttpHeader);
-				IRestResponse response = Client.Execute(request);
+				IRestResponse response = RestClient.Execute(request);
 				var responseLeague = JsonConvert.DeserializeObject<ResponseLeague>(response.Content);
-				returnItem = Mapper.Map<ResponseTeam>(item);
+				returnItem = Mapper.Map<TeamModel>(item);
 				returnItem.League = responseLeague;
-				return Request.CreateResponse(HttpStatusCode.OK, returnItem);
+				return returnItem;
 			}
 		}
 
-		public HttpResponseMessage Insert(Team entity)
+		public TeamModel Insert(TeamModel teamModel)
 		{
 			ValidationTeam validator = new ValidationTeam();
+			Team entity = Mapper.Map<Team>(teamModel);
 			FluentValidation.Results.ValidationResult result = validator.Validate(entity);
 			if (result.IsValid) {
 				Repository.Insert(entity);
-				return Request.CreateResponse(HttpStatusCode.Created, entity);
+				return teamModel;
 			}
 			else {
-				return Request.CreateResponse(HttpStatusCode.NotAcceptable, result.Errors.Select(x => x.ErrorMessage).ToList());
+				return teamModel;
 			}
 		}
 
-		public HttpResponseMessage Update(Team entity)
+		public bool Update(TeamModel entity)
 		{
 			var record = Repository.Get(entity.Id);
 			if (record == null) {
-				return Request.CreateResponse(HttpStatusCode.NotFound, record);
+				return false;
 			}
 			else {
 				if (entity.LeagueId != 0) record.LeagueId = entity.LeagueId;
@@ -105,10 +104,10 @@ namespace TeamAPI.Services
 				if (result.IsValid) {
 					record.UpdatedAt = DateTime.Now;
 					Repository.Update(record);
-					return Request.CreateResponse(HttpStatusCode.OK, record);
+					return true;
 				}
 				else {
-					return Request.CreateResponse(HttpStatusCode.NotAcceptable, result.Errors.Select(x => x.ErrorMessage).ToList());
+					return false;
 				}
 			}
 		}

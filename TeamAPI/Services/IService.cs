@@ -8,10 +8,10 @@ namespace TeamAPI.Services
 {
 	public interface IService<T> where T : class
 	{
-		HttpResponseMessage Get();
-		HttpResponseMessage Get(int id);
-		HttpResponseMessage Insert(T entity);
-		HttpResponseMessage Update(T entity);
-		HttpResponseMessage Delete(int id);
+		List<T> Get();
+		T Get(int id);
+		T Insert(T entity);
+		bool Update(T entity);
+		bool Delete(int id);
 	}
 }

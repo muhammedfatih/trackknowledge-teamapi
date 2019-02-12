@@ -7,7 +7,7 @@ using System.Web;
 
 namespace TeamAPI.Models.Response
 {
-    public class ResponseTeam
+    public class TeamModel
     {
         public int Id { get; set; }
         public int LeagueId { get; set; }
@@ -15,7 +15,7 @@ namespace TeamAPI.Models.Response
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public ResponseLeague League { get; set; }
-        public ResponseTeam()
+        public TeamModel()
         {
             League = new ResponseLeague();
         }

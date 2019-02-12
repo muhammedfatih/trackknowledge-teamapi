@@ -4,6 +4,7 @@ using Castle.Windsor;
 using RestSharp;
 using System.Web.Http.Controllers;
 using TeamAPI.Models;
+using TeamAPI.Models.Response;
 using TeamAPI.Repositories;
 using TeamAPI.Services;
 
@@ -28,7 +29,7 @@ public class RepositoryInstaller : IWindsorInstaller
 					  .BasedOn<IHttpController>()
 					  .LifestylePerWebRequest());
 		container.Register(
-			Component.For<IService<Team>>().ImplementedBy<TeamService>()
+			Component.For<IService<TeamModel>>().ImplementedBy<TeamService>()
 			);
 
 
